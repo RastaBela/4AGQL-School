@@ -1,10 +1,21 @@
 import { createContext, useContext, useEffect, useState } from "react";
+import { clientUsers } from "../services/clientUsers";
+
+type User = {
+  id: string;
+  firstname: string;
+  lastname: string;
+  pseudo: string;
+  email: string;
+  phone: string;
+  role: string;
+};
 
 type AuthContextType = {
   token: string | null;
-  role: string | null;
+  user: User | null;
   isLoading: boolean;
-  login: (token: string, role: string) => void;
+  login: (token: string, user: User) => void;
   logout: () => void;
 };
 
@@ -12,34 +23,42 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [token, setToken] = useState<string | null>(null);
-  const [role, setRole] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const storedToken = localStorage.getItem("token");
-    const storedRole = localStorage.getItem("role");
+    const storedUser = localStorage.getItem("user");
 
-    setToken(storedToken);
-    setRole(storedRole);
+    if (storedToken && storedUser) {
+      setToken(storedToken);
+      try {
+        setUser(JSON.parse(storedUser));
+      } catch {
+        setUser(null);
+      }
+    }
+
     setIsLoading(false);
   }, []);
 
-  const login = (newToken: string, newRole: string) => {
+  const login = (newToken: string, userData: User) => {
     localStorage.setItem("token", newToken);
-    localStorage.setItem("role", newRole);
+    localStorage.setItem("user", JSON.stringify(userData));
     setToken(newToken);
-    setRole(newRole);
+    setUser(userData);
   };
 
   const logout = () => {
     localStorage.removeItem("token");
-    localStorage.removeItem("role");
+    localStorage.removeItem("user");
     setToken(null);
-    setRole(null);
+    setUser(null);
+    clientUsers.clearStore(); // 🔁 Nettoie le cache Apollo
   };
 
   return (
-    <AuthContext.Provider value={{ token, role, isLoading, login, logout }}>
+    <AuthContext.Provider value={{ token, user, isLoading, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

@@ -12,22 +12,22 @@ export default function PrivateRoute({
   children,
   requiredRole,
 }: PrivateRouteProps) {
-  const { token, role, isLoading } = useAuth();
+  const { token, user, isLoading } = useAuth();
 
   if (isLoading) {
     return (
       <Box mt={20} textAlign="center">
         <Spinner size="xl" />
-        <Text mt={4}>Chargement de la session...</Text>
+        <Text mt={4}>Loading...</Text>
       </Box>
     );
   }
 
-  if (!token) {
+  if (!token || !user) {
     return <Navigate to="/login" />;
   }
 
-  if (requiredRole && role !== requiredRole) {
+  if (requiredRole && user.role !== requiredRole) {
     return <Navigate to="/dashboard" />;
   }
 

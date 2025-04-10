@@ -20,7 +20,7 @@ export default function PublicOnlyRoute({ children }: PublicOnlyRouteProps) {
   }
 
   if (token) {
-    return <Navigate to="/dashboard" />; // already connected = no access
+    return <Navigate to="/dashboard" />; // if already connected = no access
   }
 
   return children;

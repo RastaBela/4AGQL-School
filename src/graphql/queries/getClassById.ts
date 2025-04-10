@@ -1,8 +1,8 @@
 import { gql } from "@apollo/client";
 
-export const GET_MY_CLASSES = gql`
-  query GetMyClasses {
-    getClasses {
+export const GET_CLASS_BY_ID = gql`
+  query GetClass($classId: ID!) {
+    getClass(id: $classId) {
       id
       name
       students {
